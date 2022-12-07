@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.Optional;
 
 import radiorecorder.logic.FileManager;
@@ -33,8 +34,11 @@ public class RecorderThread extends Thread {
 		while (!this.stop) {
 			try {
 				this.withDatedFile(fm.next());
-			} catch (IOException e) {
-				throw new RuntimeException(e);
+			} catch (UnknownHostException | java.lang.IllegalArgumentException e) {
+				System.out.println("Bad URL.");
+				System.exit(-1);
+			} catch (Exception e) {
+				System.exit(-1);
 			}
 		}
 	}
