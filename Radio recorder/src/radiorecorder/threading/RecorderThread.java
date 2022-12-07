@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ConnectException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Optional;
@@ -36,6 +37,9 @@ public class RecorderThread extends Thread {
 				this.withDatedFile(fm.next());
 			} catch (UnknownHostException | java.lang.IllegalArgumentException e) {
 				System.out.println("Bad URL.");
+				System.exit(-1);
+			} catch (ConnectException e) {
+				System.out.println("No Internet.");
 				System.exit(-1);
 			} catch (Exception e) {
 				System.exit(-1);
