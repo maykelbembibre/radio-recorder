@@ -16,9 +16,11 @@ import com.dropbox.core.v2.users.FullAccount;
 
 public class DropboxManager {
 
+	private String accessToken;
 	private DbxClientV2 client;
 	
-	public DropboxManager() throws IOException, DbxException {
+	public DropboxManager(String accessToken) throws IOException, DbxException {
+		this.accessToken = accessToken;
 		this.client = authDropbox();
 	}
 	
@@ -48,11 +50,11 @@ public class DropboxManager {
 		System.out.println("Uploaded to dropbox: " + file.getName());
 	}
 	
-	private static DbxClientV2 authDropbox()
+	private DbxClientV2 authDropbox()
 			throws IOException, DbxException {
 		// Create Dropbox client
         DbxRequestConfig config = DbxRequestConfig.newBuilder("dropbox/java-tutorial").build();
-        DbxClientV2 client = new DbxClientV2(config, ACCESS_TOKEN);
+        DbxClientV2 client = new DbxClientV2(config, this.accessToken);
         
         // Get current account info
         FullAccount account = client.users().getCurrentAccount();
