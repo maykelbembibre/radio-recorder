@@ -16,8 +16,6 @@ import com.dropbox.core.v2.users.FullAccount;
 
 public class DropboxManager {
 
-	private static final String ACCESS_TOKEN = "sl.BUg2geh4z9Y9LrdCJeOOU_LjiNaGXciUGA-17kzvoG5cadMZZCQMjTyg0Ud8ucUWaWMbxvyGavMUIK1gMG7Ms5D9Gl8hG902BnhEnNEvYRUJxJO6jpGY9T7it40CZkU7nw0a76U";
-	
 	private DbxClientV2 client;
 	
 	public DropboxManager() throws IOException, DbxException {

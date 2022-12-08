@@ -9,7 +9,7 @@ public class Main {
 		DropboxManager dropbox = new DropboxManager();
 		String url = "http://21423.live.streamtheworld.com/2GBAAC.aac";
 		String filePath = "C:\\Users\\Max Power\\Desktop\\Aussie radio";
-		RecorderThread recorder = new RecorderThread(url, filePath, dropbox, 30);
+		RecorderThread recorder = new RecorderThread(url, filePath, dropbox, 20 * 60);
 		recorder.start();
 		System.out.println("Press to stop.");
 		System.in.read();
