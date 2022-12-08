@@ -21,6 +21,7 @@ public class FileManager implements java.util.Iterator<DatedFile> {
 	public FileManager(File basePath, String extension, int interval) {
 		this.basePath = basePath;
 		this.extension = extension;
+		this.interval = interval;
 	}
 
 	@Override

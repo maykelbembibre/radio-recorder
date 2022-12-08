@@ -35,7 +35,7 @@ public class RecorderThread extends Thread {
 		this.filePath = new File(filePath);
 		this.extension = optionalExtension.get();
 		this.dropbox = dropbox;
-		if (this.intervalSeconds < 10) {
+		if (intervalSeconds < 10) {
 			this.intervalSeconds = 10;
 		} else if (intervalSeconds > 3600) {
 			this.intervalSeconds = 3600;
