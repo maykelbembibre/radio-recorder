@@ -21,13 +21,6 @@ public class FileManager implements java.util.Iterator<DatedFile> {
 	public FileManager(File basePath, String extension, int interval) {
 		this.basePath = basePath;
 		this.extension = extension;
-		if (interval < 10000) {
-			this.interval = 10000;
-		} else if (interval > 3600000) {
-			this.interval = 3600000;
-		} else {
-			this.interval = interval;
-		}
 	}
 
 	@Override

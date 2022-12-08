@@ -24,8 +24,9 @@ public class RecorderThread extends Thread {
 	private String extension;
 	private volatile boolean stop;
 	private DropboxManager dropbox;
+	private int intervalSeconds;
 
-	public RecorderThread(String urlString, String filePath, DropboxManager dropbox) throws Exception {
+	public RecorderThread(String urlString, String filePath, DropboxManager dropbox, int intervalSeconds) throws Exception {
 		this.url = new URL(urlString);
 		Optional<String> optionalExtension = getExtensionByStringHandling(urlString);
 		if (!optionalExtension.isPresent()) {
@@ -34,11 +35,19 @@ public class RecorderThread extends Thread {
 		this.filePath = new File(filePath);
 		this.extension = optionalExtension.get();
 		this.dropbox = dropbox;
+		if (this.intervalSeconds < 10) {
+			this.intervalSeconds = 10;
+		} else if (intervalSeconds > 3600) {
+			this.intervalSeconds = 3600;
+		} else {
+			this.intervalSeconds = intervalSeconds;
+		}
+		System.out.println("A new recording will be created every " + this.intervalSeconds + " seconds.");
 	}
 
 	@Override
 	public void run() {
-		FileManager fm = new FileManager(this.filePath, this.extension, 20000);
+		FileManager fm = new FileManager(this.filePath, this.extension, this.intervalSeconds * 1000);
 		while (!this.stop) {
 			try {
 				this.withDatedFile(fm.next());
