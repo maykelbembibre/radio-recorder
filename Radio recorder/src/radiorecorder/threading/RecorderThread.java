@@ -100,7 +100,7 @@ public class RecorderThread extends Thread {
 			int length;
 			while ((!this.stop) && (!datedFile.expired()) && ((length = inputStream.read(buf)) != -1)) {
 				outputStream.write(buf, 0, length);
-				bytes++;
+				bytes+=length;
 			}
 			System.out.println("Got " + bytes + " bytes.");
 			if (this.stop) {
