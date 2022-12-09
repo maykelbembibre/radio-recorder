@@ -2,9 +2,9 @@ package radiorecorder.threading;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -48,21 +48,36 @@ public class RecorderThread extends Thread {
 	@Override
 	public void run() {
 		FileManager fm = new FileManager(this.filePath, this.extension, this.intervalSeconds * 1000);
-		while (!this.stop) {
-			try {
-				this.withDatedFile(fm.next());
-			} catch (UnknownHostException | java.lang.IllegalArgumentException e) {
-				System.out.println("Bad URL.");
-				System.exit(-1);
-			} catch (ConnectException e) {
-				System.out.println("No Internet.");
-				System.exit(-1);
-			} catch (FileNotFoundException e) {
-				System.out.println(e.getMessage());
-				System.exit(-1);
-			} catch (Exception e) {
-				e.printStackTrace();
-				System.exit(-1);
+		InputStream inputStream = null;
+		byte[] buf = new byte[8192];
+		try {
+			inputStream = this.url.openStream();
+			while (!this.stop) {
+				try {
+					this.withDatedFile(buf, inputStream, fm.next());
+				} catch (UnknownHostException | java.lang.IllegalArgumentException e) {
+					System.out.println("Bad URL.");
+					System.exit(-1);
+				} catch (ConnectException e) {
+					System.out.println("No Internet.");
+					System.exit(-1);
+				} catch (FileNotFoundException e) {
+					System.out.println(e.getMessage());
+					System.exit(-1);
+				} catch (Exception e) {
+					e.printStackTrace();
+					System.exit(-1);
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (inputStream != null) {
+				try {
+					inputStream.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -76,20 +91,18 @@ public class RecorderThread extends Thread {
 				.map(f -> f.substring(filename.lastIndexOf(".") + 1));
 	}
 	
-	private void withDatedFile(DatedFile datedFile) throws IOException, UploadErrorException, DbxException {
+	private void withDatedFile(byte[] buf, InputStream inputStream, DatedFile datedFile) throws IOException, UploadErrorException, DbxException {
 		System.out.println("Recording " + datedFile);
-		InputStream inputStream = null;
-		FileOutputStream outputStream = null;
+		OutputStream outputStream = null;
+		int bytes = 0;
 		try {
-			inputStream = this.url.openStream();
-			File file = datedFile.getFile();
-			outputStream = new FileOutputStream(file);
-			byte[] buf = new byte[8192];
+			outputStream = datedFile.getOutputStream();
 			int length;
 			while ((!this.stop) && (!datedFile.expired()) && ((length = inputStream.read(buf)) != -1)) {
 				outputStream.write(buf, 0, length);
+				bytes++;
 			}
-			this.dropbox.upload(file);
+			System.out.println("Got " + bytes + " bytes.");
 			if (this.stop) {
 				System.out.println("Stopped.");
 			} else if (datedFile.expired()) {
@@ -98,17 +111,17 @@ public class RecorderThread extends Thread {
 				System.out.println("Stream depleted.");
 			}
 		} finally {
-			if (inputStream != null) {
-				try {
-					inputStream.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
 			if (outputStream != null) {
 				try {
 					outputStream.close();
+					if (bytes == 0) {
+						System.out.println("No time to record anything. Deleting file.");
+						datedFile.getFile().delete();
+					} else {
+						this.dropbox.upload(datedFile.getFile());
+					}
+				} catch (UploadErrorException e) {
+					System.out.println("Can't upload the file because it was uploaded before.");
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

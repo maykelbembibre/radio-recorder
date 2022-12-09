@@ -1,6 +1,9 @@
 package radiorecorder.threading.model;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.Date;
 
 public class DatedFile {
@@ -15,7 +18,11 @@ public class DatedFile {
 	}
 
 	public File getFile() {
-		return file;
+		return this.file;
+	}
+	
+	public OutputStream getOutputStream() throws FileNotFoundException {
+		return new FileOutputStream(file);
 	}
 
 	public Date getValidUntil() {
